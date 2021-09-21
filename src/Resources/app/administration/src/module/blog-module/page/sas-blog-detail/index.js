@@ -39,7 +39,8 @@ Component.register('sas-blog-detail', {
             isLoading: true,
             processSuccess: false,
             fileAccept: 'image/*',
-            moduleData: this.$route.meta.$module
+            moduleData: this.$route.meta.$module,
+            customFieldsSets: []
         };
     },
 
@@ -102,7 +103,22 @@ Component.register('sas-blog-detail', {
                 'authorId',
                 'publishedAt'
             ]
-        )
+        ),
+
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldSetCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('relations.entityName', 'sas_blog_entries'));
+
+            criteria
+                .getAssociation('customFields')
+                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+
+            return criteria;
+        }
     },
 
     methods: {
@@ -119,7 +135,8 @@ Component.register('sas-blog-detail', {
 
             await Promise.all([
                 this.getPluginConfig(),
-                this.getBlog()
+                this.getCustomFieldSets(),
+                this.getBlog(),
             ]);
 
             this.isLoading = false;
@@ -148,6 +165,13 @@ Component.register('sas-blog-detail', {
                     this.blog = entity;
 
                     return Promise.resolve();
+                });
+        },
+
+        async getCustomFieldSets() {
+            this.customFieldSetRepository.search(this.customFieldSetCriteria, Shopware.Context.api)
+                .then((customFieldSets) => {
+                    this.customFieldsSets = customFieldSets;
                 });
         },
 

@@ -97,6 +97,18 @@
                             </sw-text-editor>
                         </sw-card>
                     {% endblock %}
+
+                    {% block sas_blog_detail_card_customfields %}
+                    <sw-card v-if="customFieldsSets">
+                        {% block sas_blog_detail_field_customfields %}
+                            <sw-custom-field-set-renderer
+                                    :entity="blog"
+                                    v-model="blog.customFields"
+                                    :sets="customFieldsSets">
+                            </sw-custom-field-set-renderer>
+                        {% endblock %}
+                    </sw-card>
+                    {% endif %}
                 </div>
                 <div v-if="blog">
                     {% block sas_blog_detail_field_slug %}
